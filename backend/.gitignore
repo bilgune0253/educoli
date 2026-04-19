@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# environment variables (нууц мэдээлэл)
+.env
+
+# logs
+*.log
+logs/
+
+# build / production files
+dist/
+build/
+
+# OS файлууд
+.DS_Store
+
+# editor / IDE
+.vscode/
+.idea/
