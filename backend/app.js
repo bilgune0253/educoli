@@ -3,38 +3,50 @@ const cors = require("cors");
 
 const app = express();
 
+//  Middleware
 app.use(cors());
 app.use(express.json());
 
-// TEST ROUTE
+//  Test route
 app.get("/", (req, res) => {
-  res.send("API working 🚀");
+  res.send("API working ");
 });
 
-// DB
+//  DB connection шалгах
 const pool = require("./models/db");
 
-pool.query("SELECT NOW()", (err, res) => {
-  if (err) {
-    console.log("DB ERROR", err);
-  } else {
-    console.log("DB CONNECTED", res.rows);
-  }
-});
+pool.query("SELECT NOW()")
+  .then(res => {
+    console.log("DB CONNECTED ", res.rows[0]);
+  })
+  .catch(err => {
+    console.log("DB ERROR ", err.message);
+  });
 
-// ROUTES
+//  ROUTES
 const userRoutes = require("./routes/userRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const requestRoutes = require("./routes/requestRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/requests", requestRoutes);
+app.use("/api/reviews", reviewRoutes);
 
-app.listen(5001, () => {
-  console.log("Server running on port 5001");
+// 404 handler (route олдохгүй үед)
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
 });
 
+// Global error handler (optional)
+app.use((err, req, res, next) => {
+  console.log("GLOBAL ERROR:", err.message);
+  res.status(500).json({ error: "Server error" });
+});
 
+const PORT = 5001;
 
-
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} `);
+});
