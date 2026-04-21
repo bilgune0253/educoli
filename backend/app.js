@@ -24,12 +24,17 @@ pool.query("SELECT NOW()", (err, res) => {
 
 // ROUTES
 const userRoutes = require("./routes/userRoutes");
+const courseRoutes = require("./routes/courseRoutes");
+const requestRoutes = require("./routes/requestRoutes");
+
 app.use("/api/users", userRoutes);
+app.use("/api/courses", courseRoutes);
+app.use("/api/requests", requestRoutes);
 
 app.listen(5001, () => {
   console.log("Server running on port 5001");
 });
 
-const courseRoutes = require("./routes/courseRoutes");
 
-app.use("/api/courses", courseRoutes);
+
+
