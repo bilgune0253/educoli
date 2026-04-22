@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import NotificationBell from "./NotificationBell";
-
+import VerifiedBadge from "../components/VerifiedBadge";
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -87,7 +87,10 @@ function Navbar() {
 
           {token && (
             <div className="ml-2 hidden rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 sm:block">
-              <span className="font-semibold text-slate-900 dark:text-white">{user?.name}</span>
+              <span className="font-semibold text-slate-900 dark:text-white">
+                {user?.name}
+                {user?.is_verified && <VerifiedBadge className="ml-1" />}
+              </span>
               <span className="ml-2 rounded-full bg-slate-200 px-2 py-0.5 text-xs uppercase tracking-wide text-slate-700 dark:bg-slate-700 dark:text-slate-200">
                 {user?.role}
               </span>

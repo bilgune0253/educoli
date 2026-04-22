@@ -33,7 +33,8 @@ exports.getTutorReviews = async (req, res) => {
       `SELECT 
          reviews.*,
          users.name AS student_name,
-         users.student_code AS student_code
+         users.student_code AS student_code,
+         users.is_verified AS student_is_verified
        FROM reviews
        JOIN users ON reviews.student_id = users.id
        WHERE reviews.tutor_id = $1

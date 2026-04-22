@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
+import VerifiedBadge from "../components/VerifiedBadge";
 
 function Tutors() {
     const [tutors, setTutors] = useState([]);
@@ -79,11 +80,7 @@ function Tutors() {
                         >
                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
                                 {tutor.name}
-                                {tutor.is_verified && (
-                                    <span className="ml-2 inline-flex rounded-full bg-sky-100 px-2 py-1 text-xs font-bold text-sky-700 dark:bg-sky-500/10 dark:text-sky-300">
-                                        ✓ Verified
-                                    </span>
-                                )}
+                                {tutor.is_verified && <VerifiedBadge className="ml-1" />}
                             </h3>
 
                             <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
 import StatCard from "../components/StatCard";
+import VerifiedBadge from "../components/VerifiedBadge";
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);

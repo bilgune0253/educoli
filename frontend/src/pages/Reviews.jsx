@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
+import VerifiedBadge from "../components/VerifiedBadge";
 
 function Reviews() {
   const { tutorId } = useParams();
@@ -125,6 +126,7 @@ function Reviews() {
                 <div>
                   <p className="text-lg font-bold text-slate-900 dark:text-white">
                     {review.student_name}
+                    {review.student_is_verified && <VerifiedBadge className="ml-1" />}
                   </p>
 
                   {review.student_code && (

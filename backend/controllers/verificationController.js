@@ -12,11 +12,15 @@ exports.sendVerificationEmail = async (req, res) => {
       return res.status(400).json({ error: "Email is required" });
     }
 
-    // Хүсвэл энд зөвхөн сургуулийн domain шалгаж болно
-    // жишээ:
-    // if (!email.endsWith("@stud.num.edu.mn") && !email.endsWith("@num.edu.mn")) {
-    //   return res.status(400).json({ error: "Use your university email" });
-    // }
+    // Сургуулийн email эсэхийг шалгах
+    const emailLower = email.toLowerCase();
+    // Хэрэв багш нарыг зөвшөөрөх бол 
+    // !emailLower.endsWith("@num.edu.mn") гэж давхар шалгах хэрэгтэй
+    if (!emailLower.endsWith("@stud.num.edu.mn")) {
+      return res.status(400).json({
+        error: "Буруу email хаяг байна! МУИС-ийн email хаяг оруулна уу. (@stud.num.edu.mn)",
+      });
+    }
 
     const token = jwt.sign(
       { user_id, email, type: "email_verification" },
@@ -43,7 +47,6 @@ exports.sendVerificationEmail = async (req, res) => {
         <a href="${verifyLink}" style="display:inline-block;padding:12px 20px;background:#111827;color:white;text-decoration:none;border-radius:10px;">
           Verify Email
         </a>
-        <p>This link expires in 1 hour.</p>
       `,
     });
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
+import VerifiedBadge from "../components/VerifiedBadge";
 
 function CourseDetail() {
   const { id } = useParams();
@@ -98,6 +99,7 @@ function CourseDetail() {
                 </p>
                 <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
                   {course.tutor_name}
+                  {course.tutor_is_verified && <VerifiedBadge className="ml-1" />}
                 </p>
               </div>
 
@@ -137,7 +139,7 @@ function CourseDetail() {
               Суралцсан баталгаа
             </h3>
             <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
-              Энэ хичээлийг аль хэдийн амжилттай судалсан оюутан багш бэлтгэж, 
+              Энэ хичээлийг аль хэдийн амжилттай судалсан оюутан багш бэлтгэж,
               сурлагын амжилтын нотолгоо хавсаргасан болно.
             </p>
           </div>

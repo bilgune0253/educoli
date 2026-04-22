@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import api from "../services/api";
 import { Link } from "react-router-dom";
 import PageContainer from "../components/PageContainer";
+import VerifiedBadge from "../components/VerifiedBadge";
 
 function Courses() {
   const [courses, setCourses] = useState([]);
@@ -123,11 +124,7 @@ function Courses() {
                     >
                       {course.tutor_name}
                     </Link>
-                    {course.tutor_is_verified && (
-                      <span className="ml-2 inline-flex rounded-full bg-sky-100 px-2 py-1 text-[10px] font-bold text-sky-700 dark:bg-sky-500/10 dark:text-sky-300">
-                        ✓
-                      </span>
-                    )}
+                    {course.tutor_is_verified && <VerifiedBadge className="ml-1" />}
                   </p>
 
                   {course.tutor_student_code && (

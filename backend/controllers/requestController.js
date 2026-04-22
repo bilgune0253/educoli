@@ -57,6 +57,7 @@ exports.getMyRequests = async (req, res) => {
       `SELECT 
           requests.id,
           requests.status,
+          requests.is_paid,
           courses.id AS course_id,
           courses.title,
           courses.description,
@@ -69,7 +70,8 @@ exports.getMyRequests = async (req, res) => {
             THEN courses.meeting_link
             ELSE NULL
           END AS meeting_link,
-          users.name AS tutor_name
+          users.name AS tutor_name,
+          users.is_verified AS tutor_is_verified
        FROM requests
        JOIN courses ON requests.course_id = courses.id
        JOIN users ON courses.tutor_id = users.id
@@ -96,7 +98,8 @@ exports.getRequestsForTutor = async (req, res) => {
          courses.title,
          student.name AS student_name,
          student.email AS student_email,
-         student.student_code AS student_code
+         student.student_code AS student_code,
+         student.is_verified AS student_is_verified
        FROM requests
        JOIN courses ON requests.course_id = courses.id
        JOIN users AS student ON requests.student_id = student.id

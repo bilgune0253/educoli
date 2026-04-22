@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
 import StatCard from "../components/StatCard";
+import VerifiedBadge from "../components/VerifiedBadge";
 
 function MyRequests() {
   const [requests, setRequests] = useState([]);
@@ -85,6 +86,7 @@ function MyRequests() {
                     <span className="font-medium text-slate-700 dark:text-slate-200">
                       {r.tutor_name}
                     </span>
+                    {r.tutor_is_verified && <VerifiedBadge className="ml-1" />}
                   </p>
 
                   {/* ✅ PAID BADGE */}

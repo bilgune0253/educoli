@@ -9,6 +9,7 @@ exports.getAllTutors = async (req, res) => {
         users.name,
         users.email,
         users.student_code,
+        users.is_verified,
         COUNT(DISTINCT courses.id) AS total_courses,
         COALESCE(AVG(reviews.rating), 0) AS average_rating
       FROM users
@@ -32,7 +33,7 @@ exports.getTutorProfile = async (req, res) => {
 
     try {
         const tutorResult = await pool.query(
-            `SELECT id, name, email, role, student_code
+            `SELECT id, name, email, role, student_code, is_verified
    FROM users
    WHERE id = $1 AND role = 'tutor'`,
             [id]

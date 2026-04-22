@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
 import StatCard from "../components/StatCard";
+import VerifiedBadge from "../components/VerifiedBadge";
 
 function TutorProfile() {
     const { id } = useParams();
@@ -73,11 +74,7 @@ function TutorProfile() {
                 </p>
                 <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
                     {tutor.name}
-                    {tutor.is_verified && (
-                        <span className="ml-3 inline-flex rounded-full bg-sky-100 px-3 py-1 text-sm font-bold text-sky-700 dark:bg-sky-500/10 dark:text-sky-300">
-                            ✓ Verified
-                        </span>
-                    )}
+                    {tutor.is_verified && <VerifiedBadge className="ml-2" />}
                 </h1>
                 <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">
                     {tutor.student_code}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
 import StatCard from "../components/StatCard";
+import VerifiedBadge from "../components/VerifiedBadge";
 
 function TutorRequests() {
   const [requests, setRequests] = useState([]);
@@ -86,6 +87,7 @@ function TutorRequests() {
                     <span className="font-medium text-slate-700 dark:text-slate-200">
                       {r.student_name}
                     </span>
+                    {r.student_is_verified && <VerifiedBadge className="ml-1" />}
                   </p>
 
                   {r.student_code && (
