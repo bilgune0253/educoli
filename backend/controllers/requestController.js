@@ -1,4 +1,5 @@
 const pool = require("../models/db");
+const createNotification = require("../utils/createNotification");
 
 // Student request илгээх
 exports.createRequest = async (req, res) => {
@@ -23,9 +24,26 @@ exports.createRequest = async (req, res) => {
       [student_id, course_id]
     );
 
+    // Tutor-д notification илгээх
+    const courseResult = await pool.query(
+      "SELECT title, tutor_id FROM courses WHERE id = $1",
+      [course_id]
+    );
+
+    if (courseResult.rows.length > 0) {
+      const course = courseResult.rows[0];
+
+      await createNotification({
+        user_id: course.tutor_id,
+        title: "New course request",
+        message: `A student requested your course: ${course.title}`,
+        type: "request_created",
+      });
+    }
+
     res.json(newRequest.rows[0]);
   } catch (err) {
-    console.log(" CREATE REQUEST ERROR:", err.message);
+    console.log("CREATE REQUEST ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
@@ -47,7 +65,8 @@ exports.getMyRequests = async (req, res) => {
           courses.grade,
           courses.proof_image,
           CASE
-            WHEN requests.status = 'accepted' THEN courses.meeting_link
+            WHEN requests.status = 'accepted' AND requests.is_paid = TRUE
+            THEN courses.meeting_link
             ELSE NULL
           END AS meeting_link,
           users.name AS tutor_name
@@ -61,7 +80,7 @@ exports.getMyRequests = async (req, res) => {
 
     res.json(requests.rows);
   } catch (err) {
-    console.log(" GET MY REQUESTS ERROR:", err.message);
+    console.log("GET MY REQUESTS ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
@@ -83,7 +102,7 @@ exports.getRequestsForTutor = async (req, res) => {
 
     res.json(requests.rows);
   } catch (err) {
-    console.log(" GET TUTOR REQUESTS ERROR:", err.message);
+    console.log("GET TUTOR REQUESTS ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
@@ -120,9 +139,29 @@ exports.updateRequestStatus = async (req, res) => {
       [status, id]
     );
 
+    // Student-д notification илгээх
+    const requestInfo = await pool.query(
+      `SELECT requests.student_id, courses.title
+       FROM requests
+       JOIN courses ON requests.course_id = courses.id
+       WHERE requests.id = $1`,
+      [id]
+    );
+
+    if (requestInfo.rows.length > 0) {
+      const info = requestInfo.rows[0];
+
+      await createNotification({
+        user_id: info.student_id,
+        title: `Request ${status}`,
+        message: `Your request for "${info.title}" was ${status}.`,
+        type: `request_${status}`,
+      });
+    }
+
     res.json(updatedRequest.rows[0]);
   } catch (err) {
-    console.log(" UPDATE REQUEST STATUS ERROR:", err.message);
+    console.log("UPDATE REQUEST STATUS ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };

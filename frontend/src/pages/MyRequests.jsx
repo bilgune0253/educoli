@@ -73,17 +73,26 @@ function MyRequests() {
               key={r.id}
               className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
             >
+              {/* HEADER */}
               <div className="mb-4 flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                     {r.title}
                   </h3>
+
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Оюутан багш:{" "}
                     <span className="font-medium text-slate-700 dark:text-slate-200">
                       {r.tutor_name}
                     </span>
                   </p>
+
+                  {/* ✅ PAID BADGE */}
+                  {r.is_paid && (
+                    <span className="inline-block mt-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+                      ✔ Paid
+                    </span>
+                  )}
                 </div>
 
                 <span
@@ -95,6 +104,7 @@ function MyRequests() {
                 </span>
               </div>
 
+              {/* DETAILS */}
               <div className="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700 dark:bg-slate-950 dark:text-slate-300">
                 <p>
                   <span className="font-semibold">Description:</span> {r.description}
@@ -120,21 +130,9 @@ function MyRequests() {
                     />
                   </div>
                 )}
-
-                {r.status === "accepted" && r.meeting_link && (
-                  <div className="pt-2">
-                    <a
-                      href={r.meeting_link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-block rounded-xl bg-emerald-600 px-4 py-2 font-semibold text-white transition hover:bg-emerald-700"
-                    >
-                      Join Lesson Link
-                    </a>
-                  </div>
-                )}
               </div>
 
+              {/* ACTIONS */}
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
                   to={`/my-requests/${r.id}`}
@@ -143,7 +141,29 @@ function MyRequests() {
                   View Details
                 </Link>
 
-                {r.status === "accepted" && r.meeting_link && (
+                {/* 💳 PAY BUTTON */}
+                {r.status === "accepted" && !r.is_paid && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await api.post("/payments", {
+                          request_id: r.id,
+                        });
+
+                        alert("Payment successful!");
+                        window.location.reload();
+                      } catch (err) {
+                        alert(err.response?.data?.error || "Payment failed");
+                      }
+                    }}
+                    className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                  >
+                    Pay Now 💳
+                  </button>
+                )}
+
+                {/* 🔓 JOIN BUTTON */}
+                {r.status === "accepted" && r.is_paid && r.meeting_link && (
                   <a
                     href={r.meeting_link}
                     target="_blank"

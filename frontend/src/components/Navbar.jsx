@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import NotificationBell from "./NotificationBell";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -14,10 +15,9 @@ function Navbar() {
   };
 
   const linkClass = (path) =>
-    `rounded-2xl px-4 py-2 text-sm font-medium transition ${
-      location.pathname === path
-        ? "bg-slate-900 text-white shadow-sm dark:bg-white dark:text-slate-900"
-        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+    `rounded-2xl px-4 py-2 text-sm font-medium transition ${location.pathname === path
+      ? "bg-slate-900 text-white shadow-sm dark:bg-white dark:text-slate-900"
+      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
     }`;
 
   return (
@@ -85,7 +85,7 @@ function Navbar() {
               </span>
             </div>
           )}
-
+          <NotificationBell />
           {token && (
             <button
               onClick={logout}
