@@ -6,7 +6,6 @@ exports.createReview = async (req, res) => {
   const student_id = req.user.id;
 
   try {
-    // өөрийгөө үнэлэхээс хамгаална
     if (student_id === tutor_id) {
       return res.status(400).json({ error: "You cannot review yourself" });
     }
@@ -31,7 +30,10 @@ exports.getTutorReviews = async (req, res) => {
 
   try {
     const reviews = await pool.query(
-      `SELECT reviews.*, users.name AS student_name
+      `SELECT 
+         reviews.*,
+         users.name AS student_name,
+         users.student_code AS student_code
        FROM reviews
        JOIN users ON reviews.student_id = users.id
        WHERE reviews.tutor_id = $1

@@ -8,6 +8,7 @@ function Register() {
     email: "",
     password: "",
     role: "student",
+    student_code: "",
   });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -56,7 +57,13 @@ function Register() {
             onChange={handleChange}
             className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
           />
-
+          <input
+            name="student_code"
+            placeholder="Student code"
+            value={form.student_code}
+            onChange={handleChange}
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
+          />
           <select
             name="role"
             onChange={handleChange}

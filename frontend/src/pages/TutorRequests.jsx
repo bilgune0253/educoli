@@ -80,10 +80,23 @@ function TutorRequests() {
               <div className="mb-4 flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">{r.title}</h3>
+
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Student: <span className="font-medium text-slate-700 dark:text-slate-200">{r.student_name}</span>
+                    Student:{" "}
+                    <span className="font-medium text-slate-700 dark:text-slate-200">
+                      {r.student_name}
+                    </span>
                   </p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">{r.student_email}</p>
+
+                  {r.student_code && (
+                    <p className="text-xs text-slate-400 dark:text-slate-500">
+                      {r.student_code}
+                    </p>
+                  )}
+
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {r.student_email}
+                  </p>
                 </div>
 
                 <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(r.status)}`}>

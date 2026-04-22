@@ -37,6 +37,7 @@ function Courses() {
         ${course.title}
         ${course.description}
         ${course.tutor_name}
+        ${course.tutor_student_code || ""}
         ${course.type}
         ${course.grade}
         ${course.schedule}
@@ -64,7 +65,7 @@ function Courses() {
         <div className="w-full max-w-md">
           <input
             type="text"
-            placeholder="Search by title, tutor, type, grade..."
+            placeholder="Search by title, tutor, code, type, grade..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-slate-400"
@@ -113,15 +114,23 @@ function Courses() {
               </p>
 
               <div className="mt-5 space-y-2 rounded-2xl bg-slate-50 px-4 py-4 dark:bg-slate-950">
-                <p className="text-sm text-slate-700 dark:text-slate-300">
-                  <span className="font-semibold">Tutor:</span>{" "}
-                  <Link
-                    to={`/tutors/${course.tutor_id}`}
-                    className="text-indigo-600 hover:underline dark:text-indigo-400"
-                  >
-                    {course.tutor_name}
-                  </Link>
-                </p>
+                <div>
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    <span className="font-semibold">Tutor:</span>{" "}
+                    <Link
+                      to={`/tutors/${course.tutor_id}`}
+                      className="text-indigo-600 hover:underline dark:text-indigo-400"
+                    >
+                      {course.tutor_name}
+                    </Link>
+                  </p>
+
+                  {course.tutor_student_code && (
+                    <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                      {course.tutor_student_code}
+                    </p>
+                  )}
+                </div>
 
                 <p className="text-sm text-slate-700 dark:text-slate-300">
                   <span className="font-semibold">Date & time:</span>{" "}
@@ -164,6 +173,7 @@ function Courses() {
                 >
                   View Reviews
                 </Link>
+
                 <Link
                   to={`/courses/${course.id}`}
                   className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"

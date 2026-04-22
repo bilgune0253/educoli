@@ -122,12 +122,26 @@ function Reviews() {
               className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-lg font-bold text-slate-900 dark:text-white">{review.student_name}</p>
+                <div>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white">
+                    {review.student_name}
+                  </p>
+
+                  {review.student_code && (
+                    <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                      {review.student_code}
+                    </p>
+                  )}
+                </div>
+
                 <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
                   {review.rating}/5
                 </span>
               </div>
-              <p className="leading-7 text-slate-600 dark:text-slate-300">{review.comment}</p>
+
+              <p className="leading-7 text-slate-600 dark:text-slate-300">
+                {review.comment}
+              </p>
             </div>
           ))}
         </div>

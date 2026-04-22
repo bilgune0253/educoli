@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 // REGISTER
 exports.register = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, student_code } = req.body;
 
   try {
     const existingUser = await pool.query(
@@ -19,14 +19,15 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
-      `INSERT INTO users (name, email, password, role) 
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [name, email, hashedPassword, role || "student"]
+      `INSERT INTO users (name, email, password, role, student_code) 
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, name, email, role, student_code`,
+      [name, email, hashedPassword, role || "student", student_code || null]
     );
 
     res.json(newUser.rows[0]);
   } catch (err) {
-    console.log(" REGISTER ERROR:", err.message);
+    console.log("❌ REGISTER ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
@@ -67,10 +68,11 @@ exports.login = async (req, res) => {
         name: user.rows[0].name,
         email: user.rows[0].email,
         role: user.rows[0].role,
+        student_code: user.rows[0].student_code,
       },
     });
   } catch (err) {
-  console.log(" LOGIN ERROR:", err.message);
-  res.status(500).json({ error: err.message });
-}
+    console.log(" LOGIN ERROR:", err.message);
+    res.status(500).json({ error: err.message });
+  }
 };

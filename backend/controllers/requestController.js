@@ -91,7 +91,12 @@ exports.getRequestsForTutor = async (req, res) => {
 
   try {
     const requests = await pool.query(
-      `SELECT requests.*, courses.title, student.name AS student_name, student.email AS student_email
+      `SELECT 
+         requests.*,
+         courses.title,
+         student.name AS student_name,
+         student.email AS student_email,
+         student.student_code AS student_code
        FROM requests
        JOIN courses ON requests.course_id = courses.id
        JOIN users AS student ON requests.student_id = student.id

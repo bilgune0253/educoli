@@ -57,7 +57,10 @@ exports.createCourse = async (req, res) => {
 exports.getCourses = async (req, res) => {
   try {
     const courses = await pool.query(`
-      SELECT courses.*, users.name AS tutor_name
+      SELECT 
+        courses.*,
+        users.name AS tutor_name,
+        users.student_code AS tutor_student_code
       FROM courses
       JOIN users ON courses.tutor_id = users.id
       ORDER BY courses.id DESC
@@ -76,7 +79,13 @@ exports.getCourseById = async (req, res) => {
 
   try {
     const course = await pool.query(
-      `SELECT * FROM courses WHERE id=$1`,
+      `SELECT 
+         courses.*, 
+         users.name AS tutor_name,
+         users.student_code AS tutor_student_code
+       FROM courses
+       JOIN users ON courses.tutor_id = users.id
+       WHERE courses.id = $1`,
       [id]
     );
 
