@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
 import StatCard from "../components/StatCard";
@@ -74,22 +75,40 @@ function MyRequests() {
             >
               <div className="mb-4 flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">{r.title}</h3>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                    {r.title}
+                  </h3>
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Tutor: <span className="font-medium text-slate-700 dark:text-slate-200">{r.tutor_name}</span>
+                    Оюутан багш:{" "}
+                    <span className="font-medium text-slate-700 dark:text-slate-200">
+                      {r.tutor_name}
+                    </span>
                   </p>
                 </div>
 
-                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(r.status)}`}>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
+                    r.status
+                  )}`}
+                >
                   {r.status}
                 </span>
               </div>
 
               <div className="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700 dark:bg-slate-950 dark:text-slate-300">
-                <p><span className="font-semibold">Description:</span> {r.description}</p>
-                <p><span className="font-semibold">Type:</span> {r.type}</p>
-                <p><span className="font-semibold">Date & time:</span> {r.schedule ? new Date(r.schedule).toLocaleString() : "Not set"}</p>
-                <p><span className="font-semibold">Grade:</span> {r.grade}</p>
+                <p>
+                  <span className="font-semibold">Description:</span> {r.description}
+                </p>
+                <p>
+                  <span className="font-semibold">Type:</span> {r.type}
+                </p>
+                <p>
+                  <span className="font-semibold">Date & time:</span>{" "}
+                  {r.schedule ? new Date(r.schedule).toLocaleString() : "Not set"}
+                </p>
+                <p>
+                  <span className="font-semibold">Grade:</span> {r.grade}
+                </p>
 
                 {r.proof_image && (
                   <div>
@@ -113,6 +132,26 @@ function MyRequests() {
                       Join Lesson Link
                     </a>
                   </div>
+                )}
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  to={`/my-requests/${r.id}`}
+                  className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  View Details
+                </Link>
+
+                {r.status === "accepted" && r.meeting_link && (
+                  <a
+                    href={r.meeting_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                  >
+                    Join Lesson
+                  </a>
                 )}
               </div>
             </div>

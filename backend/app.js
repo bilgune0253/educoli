@@ -32,6 +32,7 @@ const requestRoutes = require("./routes/requestRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const startCronJobs = require("./utils/cronJobs");
 
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
@@ -50,6 +51,7 @@ app.use((err, req, res, next) => {
   console.log("GLOBAL ERROR:", err.message);
   res.status(500).json({ error: "Server error" });
 });
+startCronJobs();
 
 const PORT = 5001;
 

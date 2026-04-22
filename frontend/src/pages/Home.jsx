@@ -10,16 +10,16 @@ function Home() {
 
   const features = [
     {
-      title: "Find the right tutor",
-      desc: "Browse lessons by topic, compare tutors, and choose the best fit for your study needs.",
+      title: "Зөв багшаа сонгоорой",
+      desc: "Хичээлүүдийг сэдвээр нь үзэж, багш нарыг харьцуулж, суралцах хэрэгцээндээ хамгийн сайн тохирохыг нь сонгоорой.",
     },
     {
-      title: "Send requests instantly",
-      desc: "Students can quickly request courses while tutors manage approvals from one clean dashboard.",
+      title: "Хялбар хүсэлт илгээх ба удирдах. ",
+      desc: "Нэг товч дараад л хүсэлт илгээх боломжтой ба оюутан багш мөн нэг товч дараад хүсэлтийг удирдах боломжтой.",
     },
     {
-      title: "Build trust with reviews",
-      desc: "Ratings and comments help students choose quality tutors and improve learning outcomes.",
+      title: "Шүүмлэл болон үнэлгээг үзэж, чанартай багшийг сонгоорой",
+      desc: "Үнэлгээ болон сэтгэгдэл нь оюутнуудад чанартай багш сонгох, сургалтын үр дүнг сайжруулахад тусалдаг..",
     },
   ];
 
@@ -29,7 +29,7 @@ function Home() {
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <span className="inline-flex rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300">
-              Modern Student Learning Experience
+              Оюутан хоорондын суралцах платформ
             </span>
 
             <h1 className="mt-6 text-5xl font-black leading-tight tracking-tight text-slate-900 dark:text-white sm:text-6xl">
@@ -38,9 +38,7 @@ function Home() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-              Educoli is a student-to-student tutoring platform where learners can
-              discover tutors, request lessons, and build knowledge through a clean
-              and modern web experience.
+              Educoli бол оюутан залуус орчин үеийн вэб ашиглан нэгнээсээ суралцаж мэдлэгээ дээшлүүлэх боломжтой оюутан хоорондын сургалтын платформ юм.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
@@ -48,7 +46,7 @@ function Home() {
                 to="/courses"
                 className="rounded-2xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
               >
-                Explore Courses
+                Хичээлүүд харах
               </Link>
 
               <Link
@@ -79,8 +77,8 @@ function Home() {
             <div className="relative rounded-[32px] border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
               <div className="grid gap-4">
                 <div className="rounded-3xl bg-slate-900 p-6 text-white dark:bg-slate-800">
-                  <p className="text-sm text-slate-300">Featured workflow</p>
-                  <h3 className="mt-2 text-2xl font-bold">Request → Accept → Learn</h3>
+                  <p className="text-2xl text-slate-300">Үйл ажиллагаа</p>
+                  <h3 className="mt-2 text-sm font-bold">Хүсэл илгээх → Хүлээн авах → Суралцах</h3>
                   <p className="mt-3 text-sm leading-6 text-slate-300">
                     Students browse available courses, send requests, tutors accept them,
                     and the learning session begins.
@@ -89,16 +87,16 @@ function Home() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="rounded-3xl bg-emerald-50 p-5 dark:bg-emerald-500/10">
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">For students</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      Request courses and track your learning status in one place.
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Суралцагчид</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300 text-justify">
+                      Сонирхож буй хичээлээ сонгоод хүсэлт илгээнэ. Уг хичээлийг зааж буй оюутан багш анги дүүргэлтээс хамааран хүсэлтийг хүлээн авснаар суралцах боломжтой болно.
                     </p>
                   </div>
 
                   <div className="rounded-3xl bg-amber-50 p-5 dark:bg-amber-500/10">
-                    <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">For tutors</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      Create courses, manage incoming requests, and grow your profile.
+                    <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">Оюутан багш</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300 text-justify">
+                      Өөрийн эзэмшсэн мэдлэгийн хүрээнд хичээлүүд үүсгэж, суралцагчдын хүсэлтийг удирдах боломжтой ба Хичээлийг заах төрлийг тодорхойлж зохицуулах боломжтой.
                     </p>
                   </div>
                 </div>

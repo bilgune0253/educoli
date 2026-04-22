@@ -28,7 +28,7 @@ function Login() {
   return (
     <div className="flex min-h-[calc(100vh-73px)] items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
-        <h2 className="mb-2 text-3xl font-bold text-slate-900 dark:text-white">Welcome back</h2>
+        <h2 className="mb-2 text-3xl font-bold text-slate-900 dark:text-white">Тавтай морилно уу?</h2>
         <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
           Login to continue using Educoli.
         </p>
