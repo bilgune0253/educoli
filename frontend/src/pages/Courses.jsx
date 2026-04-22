@@ -114,7 +114,13 @@ function Courses() {
 
               <div className="mt-5 space-y-2 rounded-2xl bg-slate-50 px-4 py-4 dark:bg-slate-950">
                 <p className="text-sm text-slate-700 dark:text-slate-300">
-                  <span className="font-semibold">Tutor:</span> {course.tutor_name}
+                  <span className="font-semibold">Tutor:</span>{" "}
+                  <Link
+                    to={`/tutors/${course.tutor_id}`}
+                    className="text-indigo-600 hover:underline dark:text-indigo-400"
+                  >
+                    {course.tutor_name}
+                  </Link>
                 </p>
 
                 <p className="text-sm text-slate-700 dark:text-slate-300">

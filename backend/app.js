@@ -35,6 +35,7 @@ const uploadRoutes = require("./routes/uploadRoutes");
 const startCronJobs = require("./utils/cronJobs");
 const notificationRoutes = require("./routes/notificationRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const tutorRoutes = require("./routes/tutorRoutes");
 
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
@@ -44,6 +45,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/tutors", tutorRoutes);
 
 // 404 handler
 app.use((req, res) => {

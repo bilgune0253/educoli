@@ -40,6 +40,9 @@ function Navbar() {
           <Link to="/courses" className={linkClass("/courses")}>
             Courses
           </Link>
+          <Link to="/tutors" className={linkClass("/tutors")}>
+            Tutors
+          </Link>
 
           {!token && (
             <>

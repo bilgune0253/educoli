@@ -14,6 +14,8 @@ import AdminRoute from "./components/AdminRoute";
 import CourseDetail from "./pages/CourseDetail";
 import RequestDetail from "./pages/RequestDetail";
 import Notifications from "./pages/Notifications";
+import TutorProfile from "./pages/TutorProfile";
+import Tutors from "./pages/Tutors";
 
 function App() {
   return (
@@ -81,6 +83,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/tutors" element={<Tutors />} />
+          <Route path="/tutors/:id" element={<TutorProfile />} />
         </Routes>
       </main>
     </div>
