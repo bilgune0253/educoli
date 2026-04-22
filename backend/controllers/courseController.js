@@ -1,5 +1,14 @@
 const pool = require("../models/db");
 
+// URL шалгах helper
+const isValidURL = (url) => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
 // CREATE COURSE (JWT ашиглана)
 exports.createCourse = async (req, res) => {
   const {
@@ -20,9 +29,14 @@ exports.createCourse = async (req, res) => {
       });
     }
 
-    if (type === "online" && !meeting_link) {
+    if (!meeting_link) {
       return res.status(400).json({
-        error: "Meeting link is required for online courses",
+        error: "Field is required",
+      });
+    }
+    if (type === "online" && !isValidURL(meeting_link)) {
+      return res.status(400).json({
+        error: "Please enter a valid meeting link",
       });
     }
 

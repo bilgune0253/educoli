@@ -74,7 +74,6 @@ function MyRequests() {
               key={r.id}
               className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
             >
-              {/* HEADER */}
               <div className="mb-4 flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -89,7 +88,6 @@ function MyRequests() {
                     {r.tutor_is_verified && <VerifiedBadge className="ml-1" />}
                   </p>
 
-                  {/* ✅ PAID BADGE */}
                   {r.is_paid && (
                     <span className="inline-block mt-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
                       ✔ Paid
@@ -106,7 +104,6 @@ function MyRequests() {
                 </span>
               </div>
 
-              {/* DETAILS */}
               <div className="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700 dark:bg-slate-950 dark:text-slate-300">
                 <p>
                   <span className="font-semibold">Description:</span> {r.description}
@@ -132,9 +129,31 @@ function MyRequests() {
                     />
                   </div>
                 )}
+
+                {r.status === "accepted" && r.is_paid && r.meeting_link && (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                    <p className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      {r.type === "online" ? "Meeting link:" : "Хичээлийн байр:"}
+                    </p>
+
+                    {r.type === "online" ? (
+                      <a
+                        href={r.meeting_link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-indigo-600 underline dark:text-indigo-400"
+                      >
+                        {r.meeting_link}
+                      </a>
+                    ) : (
+                      <p className="text-slate-600 dark:text-slate-300">
+                        📍 {r.meeting_link}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {/* ACTIONS */}
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
                   to={`/my-requests/${r.id}`}
@@ -143,7 +162,6 @@ function MyRequests() {
                   View Details
                 </Link>
 
-                {/* 💳 PAY BUTTON */}
                 {r.status === "accepted" && !r.is_paid && (
                   <button
                     onClick={async () => {
@@ -164,8 +182,7 @@ function MyRequests() {
                   </button>
                 )}
 
-                {/* 🔓 JOIN BUTTON */}
-                {r.status === "accepted" && r.is_paid && r.meeting_link && (
+                {r.status === "accepted" && r.is_paid && r.meeting_link && r.type === "online" && (
                   <a
                     href={r.meeting_link}
                     target="_blank"

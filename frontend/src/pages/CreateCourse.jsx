@@ -126,13 +126,33 @@ function CreateCourse() {
           />
 
           {form.type === "online" && (
-            <input
-              name="meeting_link"
-              placeholder="Google Meet / Teams link"
-              value={form.meeting_link}
-              onChange={handleChange}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-            />
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Google Meet / Teams link
+              </label>
+              <input
+                name="meeting_link"
+                placeholder="Paste meeting link here"
+                value={form.meeting_link}
+                onChange={handleChange}
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
+              />
+            </div>
+          )}
+
+          {form.type === "offline" && (
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Хичээлийн байр
+              </label>
+              <input
+                name="meeting_link"
+                placeholder="Жишээ: 2-р байр 305"
+                value={form.meeting_link}
+                onChange={handleChange}
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
+              />
+            </div>
           )}
 
           <input
