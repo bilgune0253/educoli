@@ -79,12 +79,17 @@ function Tutors() {
                         >
                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
                                 {tutor.name}
+                                {tutor.is_verified && (
+                                    <span className="ml-2 inline-flex rounded-full bg-sky-100 px-2 py-1 text-xs font-bold text-sky-700 dark:bg-sky-500/10 dark:text-sky-300">
+                                        ✓ Verified
+                                    </span>
+                                )}
                             </h3>
 
                             <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
                                 {tutor.student_code}
                             </p>
-                            
+
                             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                                 {tutor.email}
                             </p>

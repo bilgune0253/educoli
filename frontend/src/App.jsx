@@ -16,6 +16,8 @@ import RequestDetail from "./pages/RequestDetail";
 import Notifications from "./pages/Notifications";
 import TutorProfile from "./pages/TutorProfile";
 import Tutors from "./pages/Tutors";
+import VerifyRequest from "./pages/VerifyRequest";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
@@ -85,6 +87,9 @@ function App() {
           />
           <Route path="/tutors" element={<Tutors />} />
           <Route path="/tutors/:id" element={<TutorProfile />} />
+
+          <Route path="/verify-request" element={<VerifyRequest />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
         </Routes>
       </main>
     </div>

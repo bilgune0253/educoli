@@ -77,6 +77,11 @@ function Navbar() {
               Admin
             </Link>
           )}
+          {token && !user?.is_verified && (
+            <Link to="/verify-request" className={linkClass("/verify-request")}>
+              Get verified
+            </Link>
+          )}
 
           <ThemeToggle />
 

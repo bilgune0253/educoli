@@ -60,7 +60,8 @@ exports.getCourses = async (req, res) => {
       SELECT 
         courses.*,
         users.name AS tutor_name,
-        users.student_code AS tutor_student_code
+        users.student_code AS tutor_student_code,
+        users.is_verified AS tutor_is_verified
       FROM courses
       JOIN users ON courses.tutor_id = users.id
       ORDER BY courses.id DESC
@@ -82,7 +83,8 @@ exports.getCourseById = async (req, res) => {
       `SELECT 
          courses.*, 
          users.name AS tutor_name,
-         users.student_code AS tutor_student_code
+         users.student_code AS tutor_student_code,
+         users.is_verified AS tutor_is_verified
        FROM courses
        JOIN users ON courses.tutor_id = users.id
        WHERE courses.id = $1`,

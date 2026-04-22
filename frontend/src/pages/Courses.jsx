@@ -123,6 +123,11 @@ function Courses() {
                     >
                       {course.tutor_name}
                     </Link>
+                    {course.tutor_is_verified && (
+                      <span className="ml-2 inline-flex rounded-full bg-sky-100 px-2 py-1 text-[10px] font-bold text-sky-700 dark:bg-sky-500/10 dark:text-sky-300">
+                        ✓
+                      </span>
+                    )}
                   </p>
 
                   {course.tutor_student_code && (
