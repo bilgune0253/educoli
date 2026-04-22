@@ -1,27 +1,59 @@
 const pool = require("../models/db");
 
-// 🟢 CREATE COURSE (JWT ашиглана)
+// CREATE COURSE (JWT ашиглана)
 exports.createCourse = async (req, res) => {
-  const { title, description, price, type } = req.body;
+  const {
+    title,
+    description,
+    price,
+    type,
+    schedule,
+    meeting_link,
+    grade,
+    proof_image,
+  } = req.body;
 
   try {
-    const tutor_id = req.user.id; // 🔥 login user-аас авна
+    if (!title || !description || !type || !schedule || !grade || !proof_image) {
+      return res.status(400).json({
+        error: "Title, description, type, schedule, grade, and proof image are required",
+      });
+    }
+
+    if (type === "online" && !meeting_link) {
+      return res.status(400).json({
+        error: "Meeting link is required for online courses",
+      });
+    }
+
+    const tutor_id = req.user.id;
 
     const newCourse = await pool.query(
-      `INSERT INTO courses (title, description, price, type, tutor_id)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [title, description, price, type, tutor_id]
+      `INSERT INTO courses
+      (title, description, price, type, tutor_id, schedule, meeting_link, grade, proof_image)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING *`,
+      [
+        title,
+        description,
+        price,
+        type,
+        tutor_id,
+        schedule,
+        meeting_link || null,
+        grade,
+        proof_image,
+      ]
     );
 
     res.json(newCourse.rows[0]);
   } catch (err) {
-    console.log("❌ CREATE COURSE ERROR:", err.message);
+    console.log(" CREATE COURSE ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
 
-// 🔵 GET ALL COURSES
+// GET ALL COURSES
 exports.getCourses = async (req, res) => {
   try {
     const courses = await pool.query(`
@@ -33,12 +65,12 @@ exports.getCourses = async (req, res) => {
 
     res.json(courses.rows);
   } catch (err) {
-    console.log("❌ GET COURSES ERROR:", err.message);
+    console.log(" GET COURSES ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
 
-// 🟡 GET SINGLE COURSE
+// GET SINGLE COURSE
 exports.getCourseById = async (req, res) => {
   const { id } = req.params;
 
@@ -54,12 +86,12 @@ exports.getCourseById = async (req, res) => {
 
     res.json(course.rows[0]);
   } catch (err) {
-    console.log("❌ GET COURSE ERROR:", err.message);
+    console.log(" GET COURSE ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
 
-// 🔴 DELETE COURSE (optional)
+// DELETE COURSE (optional)
 exports.deleteCourse = async (req, res) => {
   const { id } = req.params;
 
@@ -67,7 +99,7 @@ exports.deleteCourse = async (req, res) => {
     await pool.query("DELETE FROM courses WHERE id=$1", [id]);
     res.json({ message: "Course deleted" });
   } catch (err) {
-    console.log("❌ DELETE ERROR:", err.message);
+    console.log(" DELETE ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };

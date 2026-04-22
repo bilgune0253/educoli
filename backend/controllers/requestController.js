@@ -36,7 +36,21 @@ exports.getMyRequests = async (req, res) => {
 
   try {
     const requests = await pool.query(
-      `SELECT requests.*, courses.title, courses.description, users.name AS tutor_name
+      `SELECT 
+          requests.id,
+          requests.status,
+          courses.id AS course_id,
+          courses.title,
+          courses.description,
+          courses.type,
+          courses.schedule,
+          courses.grade,
+          courses.proof_image,
+          CASE
+            WHEN requests.status = 'accepted' THEN courses.meeting_link
+            ELSE NULL
+          END AS meeting_link,
+          users.name AS tutor_name
        FROM requests
        JOIN courses ON requests.course_id = courses.id
        JOIN users ON courses.tutor_id = users.id

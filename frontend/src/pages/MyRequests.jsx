@@ -37,8 +37,12 @@ function MyRequests() {
   return (
     <PageContainer className="py-10">
       <div className="mb-8">
-        <p className="mb-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">Student dashboard</p>
-        <h1 className="text-4xl font-black text-slate-900 dark:text-white">My Requests</h1>
+        <p className="mb-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">
+          Student dashboard
+        </p>
+        <h1 className="text-4xl font-black text-slate-900 dark:text-white">
+          My Requests
+        </h1>
         <p className="mt-2 text-slate-500 dark:text-slate-400">
           Track all course requests you have sent.
         </p>
@@ -81,8 +85,35 @@ function MyRequests() {
                 </span>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-600 dark:bg-slate-950 dark:text-slate-300">
-                {r.description}
+              <div className="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700 dark:bg-slate-950 dark:text-slate-300">
+                <p><span className="font-semibold">Description:</span> {r.description}</p>
+                <p><span className="font-semibold">Type:</span> {r.type}</p>
+                <p><span className="font-semibold">Date & time:</span> {r.schedule ? new Date(r.schedule).toLocaleString() : "Not set"}</p>
+                <p><span className="font-semibold">Grade:</span> {r.grade}</p>
+
+                {r.proof_image && (
+                  <div>
+                    <p className="mb-2 font-semibold">Grade proof:</p>
+                    <img
+                      src={r.proof_image}
+                      alt="Grade proof"
+                      className="max-h-64 w-full rounded-2xl border border-slate-200 object-cover dark:border-slate-700"
+                    />
+                  </div>
+                )}
+
+                {r.status === "accepted" && r.meeting_link && (
+                  <div className="pt-2">
+                    <a
+                      href={r.meeting_link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-block rounded-xl bg-emerald-600 px-4 py-2 font-semibold text-white transition hover:bg-emerald-700"
+                    >
+                      Join Lesson Link
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           ))}

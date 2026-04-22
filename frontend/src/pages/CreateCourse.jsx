@@ -9,26 +9,60 @@ function CreateCourse() {
     description: "",
     price: "",
     type: "online",
+    schedule: "",
+    meeting_link: "",
+    grade: "",
   });
+
+  const [imageFile, setImageFile] = useState(null);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
+
+  const uploadImage = async () => {
+    if (!imageFile) {
+      throw new Error("Please select a grade screenshot image");
+    }
+
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    const res = await api.post("/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return res.data.imageUrl;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
+    setLoading(true);
 
     try {
+      const proofImageUrl = await uploadImage();
+
       await api.post("/courses", {
         ...form,
-        price: Number(form.price),
+        price: Number(form.price) || 0,
+        proof_image: proofImageUrl,
       });
+
       navigate("/courses");
     } catch (err) {
-      setMessage(err.response?.data?.error || "Failed to create course");
+      setMessage(err.response?.data?.error || err.message || "Failed to create course");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,73 +75,92 @@ function CreateCourse() {
         <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
           Create Course
         </h1>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
-          Publish a new course for students to discover and request.
-        </p>
       </div>
 
       <div className="max-w-3xl rounded-[32px] border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-              Course title
-            </label>
-            <input
-              name="title"
-              placeholder="Enter course title"
-              onChange={handleChange}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
-            />
-          </div>
+          <input
+            name="title"
+            placeholder="Course title"
+            value={form.title}
+            onChange={handleChange}
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
 
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-              Description
-            </label>
-            <textarea
-              name="description"
-              rows="5"
-              placeholder="Describe your course"
-              onChange={handleChange}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
-            />
-          </div>
+          <textarea
+            name="description"
+            rows="5"
+            placeholder="Detailed description"
+            value={form.description}
+            onChange={handleChange}
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
 
           <div className="grid gap-5 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                Price
-              </label>
-              <input
-                name="price"
-                type="number"
-                placeholder="Enter price"
-                onChange={handleChange}
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
-              />
-            </div>
+            <input
+              name="price"
+              type="number"
+              placeholder="Price"
+              value={form.price}
+              onChange={handleChange}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            />
 
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                Type
-              </label>
-              <select
-                name="type"
-                value={form.type}
-                onChange={handleChange}
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
-              >
-                <option value="online">Online</option>
-                <option value="offline">Offline</option>
-              </select>
-            </div>
+            <select
+              name="type"
+              value={form.type}
+              onChange={handleChange}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            >
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+            </select>
+          </div>
+
+          <input
+            type="datetime-local"
+            name="schedule"
+            value={form.schedule}
+            onChange={handleChange}
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
+
+          {form.type === "online" && (
+            <input
+              name="meeting_link"
+              placeholder="Google Meet / Teams link"
+              value={form.meeting_link}
+              onChange={handleChange}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            />
+          )}
+
+          <input
+            name="grade"
+            placeholder="Your grade / GPA for this course"
+            value={form.grade}
+            onChange={handleChange}
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+              Upload grade screenshot
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            />
           </div>
 
           <button
             type="submit"
-            className="rounded-2xl bg-slate-900 px-6 py-3 font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+            disabled={loading}
+            className="rounded-2xl bg-slate-900 px-6 py-3 font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
           >
-            Publish Course
+            {loading ? "Publishing..." : "Publish Course"}
           </button>
         </form>
 
