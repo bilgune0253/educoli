@@ -37,6 +37,8 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const tutorRoutes = require("./routes/tutorRoutes");
 const verificationRoutes = require("./routes/verificationRoutes");
+const learningRoutes = require("./routes/learningRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
@@ -48,6 +50,8 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/tutors", tutorRoutes);
 app.use("/api/verification", verificationRoutes);
+app.use("/api/learning-requests", learningRoutes);
+app.use("/api/chats", chatRoutes);
 
 // 404 handler
 app.use((req, res) => {

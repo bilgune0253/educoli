@@ -1,53 +1,114 @@
+
 import { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import {
+  CheckCircle2, XCircle, LoaderCircle,
+  ArrowRight
+} from "lucide-react";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
 
-function VerifyEmail() {
+export default function VerifyEmail() {
   const [params] = useSearchParams();
-  const [message, setMessage] = useState("Verifying...");
   const token = params.get("token");
 
-  useEffect(() => {
-    const verify = async () => {
-      try {
-        const res = await api.post("/verification/confirm", { token });
-        setMessage(res.data.message);
+  const [message, setMessage] = useState("Verifying...");
+  const [status, setStatus] = useState("loading");
 
-        const user = JSON.parse(localStorage.getItem("user"));
+  useEffect(() => {
+    let active = true;
+
+    const verify = async () => {
+      if (!token) {
+        setMessage("Verification token not found");
+        setStatus("error");
+        return;
+      }
+
+      try {
+        const { data } = await api.post(
+          "/verification/confirm",
+          { token }
+        );
+
+        if (!active) return;
+
+        setMessage(data.message);
+        setStatus("success");
+
+        const user = JSON.parse(
+          localStorage.getItem("user") || "null"
+        );
+
         if (user) {
           user.is_verified = true;
-          localStorage.setItem("user", JSON.stringify(user));
+          localStorage.setItem(
+            "user",
+            JSON.stringify(user)
+          );
         }
       } catch (err) {
-        setMessage(err.response?.data?.error || "Verification failed");
+        if (!active) return;
+        setMessage(
+          err.response?.data?.error ||
+          "Verification failed"
+        );
+        setStatus("error");
       }
     };
 
-    if (token) {
-      verify();
-    } else {
-      setMessage("Verification token not found");
-    }
+    verify();
+    return () => { active = false; };
   }, [token]);
 
   return (
-    <PageContainer className="py-10">
-      <div className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white">
-          Email Verification
-        </h1>
-        <p className="mt-4 text-slate-600 dark:text-slate-300">{message}</p>
+    <PageContainer className="py-12 sm:py-20">
+      <div className="mx-auto max-w-xl">
+        <div className="ui-card p-8 text-center sm:p-12">
+          <div className={`mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl ${
+            status === "success"
+              ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"
+              : status === "error"
+              ? "bg-rose-50 text-rose-600 dark:bg-rose-500/10"
+              : "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10"
+          }`}>
+            {status === "success" ? (
+              <CheckCircle2 size={40} />
+            ) : status === "error" ? (
+              <XCircle size={40} />
+            ) : (
+              <LoaderCircle
+                size={40}
+                className="animate-spin"
+              />
+            )}
+          </div>
 
-        <Link
-          to="/"
-          className="mt-6 inline-block rounded-2xl bg-slate-900 px-5 py-3 font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-        >
-          Go Home
-        </Link>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-indigo-600">
+            Educoli Verification
+          </p>
+
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            {status === "success"
+              ? "Account Verified!"
+              : status === "error"
+              ? "Verification Failed"
+              : "Verifying your email..."}
+          </h1>
+
+          <p role="status" className="mt-5 text-sm leading-7 text-slate-500">
+            {message}
+          </p>
+
+          <Link
+            to="/"
+            className="ui-button ui-button-primary mt-8"
+          >
+            Go Home
+            <ArrowRight size={17} />
+          </Link>
+        </div>
       </div>
     </PageContainer>
   );
 }
-
-export default VerifyEmail;

@@ -1,102 +1,83 @@
-import { useState } from "react";
-import api from "../services/api";
-import { useNavigate, Link } from "react-router-dom";
 
-function Register() {
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../services/api";
+import AuthLayout from "../components/ui/AuthLayout";
+import Button from "../components/ui/Button";
+import { Input, Select } from "../components/ui/Form";
+
+export default function Register() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "student",
-    student_code: "",
+    name: "", email: "", password: "",
+    student_code: "", role: "student"
   });
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const change = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setMessage("");
-
+    setLoading(true);
     try {
       await api.post("/users/register", form);
       navigate("/login");
     } catch (err) {
       setMessage(err.response?.data?.error || "Register failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-73px)] items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
-        <h2 className="mb-2 text-3xl font-bold text-slate-900 dark:text-white">Create account</h2>
-        <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-          Join Educoli and start learning or teaching.
-        </p>
+    <AuthLayout
+      title="Create your account."
+      subtitle="Educoli-д нэгдэж, суралцах эсвэл мэдлэгээ бусадтай хуваалцаарай."
+    >
+      <form onSubmit={submit} className="space-y-4">
+        <Input label="Full name" name="name" required
+          autoComplete="name" value={form.name}
+          onChange={change} placeholder="Your full name" />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            name="name"
-            placeholder="Full name"
-            onChange={handleChange}
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
-          />
-          <input
-            name="email"
-            placeholder="Email"
-            onChange={handleChange}
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
-          />
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            onChange={handleChange}
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
-          />
-          <input
-            name="student_code"
-            placeholder="Student code"
-            value={form.student_code}
-            onChange={handleChange}
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
-          />
-          <select
-            name="role"
-            onChange={handleChange}
-            value={form.role}
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
-          >
-            <option value="student">Student</option>
-            <option value="tutor">Tutor</option>
-          </select>
+        <Input label="Email address" name="email" type="email"
+          required autoComplete="email" value={form.email}
+          onChange={change} placeholder="you@example.com" />
 
-          <button
-            type="submit"
-            className="w-full rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-          >
-            Register
-          </button>
-        </form>
+        <Input label="Password" name="password" type="password"
+          required autoComplete="new-password"
+          value={form.password} onChange={change}
+          placeholder="Create a password" />
+
+        <Input label="Student code" name="student_code"
+          required value={form.student_code}
+          onChange={change} placeholder="Your student code" />
+
+        <Select label="I want to join as" name="role"
+          value={form.role} onChange={change}>
+          <option value="student">Student — суралцагч</option>
+          <option value="tutor">Tutor — багш</option>
+        </Select>
 
         {message && (
-          <p className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-600 dark:bg-rose-500/10 dark:text-rose-300">
+          <p role="alert" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-600">
             {message}
           </p>
         )}
 
-        <p className="mt-6 text-sm text-slate-500 dark:text-slate-400">
-          Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">
-            Login
-          </Link>
-        </p>
-      </div>
-    </div>
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? "Creating account..." : "Create account"}
+        </Button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-slate-500">
+        Already have an account?{" "}
+        <Link to="/login" className="font-bold text-indigo-600 hover:underline">
+          Sign in
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }
-
-export default Register;

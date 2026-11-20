@@ -1,223 +1,251 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import {
+  ArrowLeft, CalendarDays, GraduationCap,
+  ImageIcon, MapPin, UserRound, X
+} from "lucide-react";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
+import Card from "../components/ui/Card";
+import StatusBadge from "../components/ui/StatusBadge";
 
-function RequestDetail() {
+export default function RequestDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [request, setRequest] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [showImage, setShowImage] = useState(false);
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const fetchRequest = async () => {
+    let active = true;
+
+    async function load() {
       try {
-        const res = await api.get("/requests/my");
-        const found = res.data.find((item) => String(item.id) === String(id));
+        const { data } = await api.get("/requests/my");
+        const found = data.find(
+          (item) => String(item.id) === String(id)
+        );
 
-        if (!found) {
-          setMessage("Request not found");
-          return;
+        if (!active) return;
+
+        if (found) {
+          setRequest(found);
+        } else {
+          setError("Request not found");
         }
-
-        setRequest(found);
       } catch (err) {
-        setMessage(err.response?.data?.error || "Failed to load request details");
+        if (active) {
+          setError(
+            err.response?.data?.error ||
+            "Failed to load request details"
+          );
+        }
+      } finally {
+        if (active) setLoading(false);
       }
-    };
+    }
 
-    fetchRequest();
+    load();
+    return () => { active = false; };
   }, [id]);
 
-  const getStatusClass = (status) => {
-    if (status === "accepted") {
-      return "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20";
-    }
-    if (status === "rejected") {
-      return "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20";
-    }
-    return "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20";
-  };
-
-  if (message) {
-    return (
-      <PageContainer className="py-10">
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <button
-            onClick={() => navigate(-1)}
-            className="mb-6 rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            ← Back
-          </button>
-
-          <p className="text-slate-600 dark:text-slate-300">{message}</p>
-        </div>
-      </PageContainer>
-    );
-  }
-
-  if (!request) {
-    return (
-      <PageContainer className="py-10">
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-slate-600 dark:text-slate-300">Loading request details...</p>
-        </div>
-      </PageContainer>
-    );
-  }
+  const InfoItem = ({ icon: Icon, label, value }) => (
+    <div className="flex items-start gap-4 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
+      <div className="rounded-xl bg-indigo-100 p-2.5 text-indigo-600 dark:bg-indigo-500/20">
+        <Icon size={19} />
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-slate-500">
+          {label}
+        </p>
+        <p className="mt-1 break-words font-semibold text-slate-900 dark:text-white">
+          {value || "Not set"}
+        </p>
+      </div>
+    </div>
+  );
 
   return (
-    <PageContainer className="py-10">
-      <div className="mb-6 flex items-center justify-between">
+    <PageContainer className="py-10 sm:py-14">
+      <div className="mx-auto max-w-6xl">
         <button
+          type="button"
           onClick={() => navigate(-1)}
-          className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+          className="ui-button ui-button-outline mb-8"
         >
-          ← Back
+          <ArrowLeft size={17} /> Back
         </button>
 
-        <span className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide ${getStatusClass(request.status)}`}>
-          {request.status}
-        </span>
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-6">
-            <p className="mb-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">
-              Request Detail
+        {loading ? (
+          <div className="ui-card h-72 animate-pulse" />
+        ) : error || !request ? (
+          <Card>
+            <p role="alert" className="text-rose-600">
+              {error || "Request not found"}
             </p>
-            <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-              {request.title}
-            </h1>
-            <p className="mt-4 text-lg leading-8 text-slate-600 dark:text-slate-300">
-              {request.description}
-            </p>
-          </div>
-
-          {request.proof_image && (
-            <div className="mt-8">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                  Дүнгийн баталгаа (зураг)
+          </Card>
+        ) : (
+          <>
+            <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-indigo-600">
+                  Course Request
                 </p>
-                <button
-                  onClick={() => setShowImage(true)}
-                  className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                >
-                  View full image
-                </button>
+                <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+                  {request.title}
+                </h1>
+                <p className="mt-3 text-sm text-slate-500">
+                  Request #{request.id}
+                </p>
               </div>
-
-              <img
-                src={request.proof_image}
-                alt="Grade proof"
-                onClick={() => setShowImage(true)}
-                className="h-[320px] w-full cursor-pointer rounded-3xl border border-slate-200 object-cover transition hover:scale-[1.01] dark:border-slate-800"
-              />
+              <StatusBadge status={request.status} />
             </div>
-          )}
-        </div>
 
-        <div className="space-y-6">
-          <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="mb-5 text-xl font-bold text-slate-900 dark:text-white">
-              хүсэлтийн мэдээлэл
-            </h2>
-
-            <div className="space-y-4">
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-950">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  Оюутан багш
-                </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                  {request.tutor_name}
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-950">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  Хичээлийн төрөл
-                </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                  {request.type}
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-950">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  Schedule
-                </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                  {request.schedule
-                    ? new Date(request.schedule).toLocaleString()
-                    : "Not set"}
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-950">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  Grade / GPA
-                </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                  {request.grade}
-                </p>
-              </div>
-
-              {request.status === "accepted" && request.meeting_link && (
-                <div className="rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-500/10">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-300">
-                    Meeting Link
+            <div className="grid items-start gap-6 lg:grid-cols-[1fr_340px]">
+              <div className="space-y-6">
+                <Card>
+                  <h2 className="mb-4 text-xl font-bold">
+                    About this course
+                  </h2>
+                  <p className="whitespace-pre-line leading-8 text-slate-600 dark:text-slate-300">
+                    {request.description || "No description"}
                   </p>
-                  <a
-                    href={request.meeting_link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-2 inline-block rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
-                  >
-                    Join Lesson
-                  </a>
-                </div>
-              )}
+                </Card>
+
+                {request.proof_image && (
+                  <Card>
+                    <div className="mb-5 flex items-center gap-3">
+                      <ImageIcon
+                        size={21}
+                        className="text-indigo-600"
+                      />
+                      <h2 className="text-xl font-bold">
+                        Grade Proof
+                      </h2>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowImage(true)}
+                      className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950"
+                    >
+                      <img
+                        src={request.proof_image}
+                        alt="Grade proof"
+                        className="max-h-96 w-full object-contain"
+                      />
+                    </button>
+
+                    <p className="mt-3 text-xs text-slate-500">
+                      Click the image to view full size.
+                    </p>
+                  </Card>
+                )}
+              </div>
+
+              <div className="space-y-6">
+                <Card>
+                  <h2 className="mb-5 text-xl font-bold">
+                    Request Information
+                  </h2>
+
+                  <div className="space-y-3">
+                    <InfoItem
+                      icon={UserRound}
+                      label="Tutor"
+                      value={request.tutor_name}
+                    />
+                    <InfoItem
+                      icon={GraduationCap}
+                      label="Course type"
+                      value={request.type}
+                    />
+                    <InfoItem
+                      icon={CalendarDays}
+                      label="Schedule"
+                      value={
+                        request.schedule
+                          ? new Date(request.schedule).toLocaleString()
+                          : "Not set"
+                      }
+                    />
+                    <InfoItem
+                      icon={GraduationCap}
+                      label="Grade / GPA"
+                      value={request.grade}
+                    />
+                  </div>
+
+                  {request.status === "accepted" &&
+                    request.meeting_link && (
+                    <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                      <div className="mb-3 flex items-center gap-2 font-semibold text-emerald-700 dark:text-emerald-300">
+                        <MapPin size={18} />
+                        Lesson Access
+                      </div>
+
+                      {request.type === "online" ? (
+                        <a
+                          href={request.meeting_link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="ui-button bg-emerald-600 text-white hover:bg-emerald-700"
+                        >
+                          Join Lesson
+                        </a>
+                      ) : (
+                        <p className="break-words text-sm">
+                          {request.meeting_link}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </Card>
+
+                <Card>
+                  <h3 className="font-bold">
+                    Request Status
+                  </h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">
+                    Accepted requests provide access to the
+                    lesson details. Pending requests are
+                    waiting for tutor approval.
+                  </p>
+                </Card>
+              </div>
             </div>
-          </div>
 
-          <div className="rounded-[32px] border border-slate-200 bg-gradient-to-br from-indigo-50 to-white p-6 shadow-lg dark:border-slate-800 dark:from-slate-900 dark:to-slate-900">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              Хүсэлтийн мэдээлэл
-            </h3>
-            <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
-              Хүлээгдэж буй болон татгалзсан хүсэлтүүд нь үндсэн хичээлийн дэлгэрэнгүй мэдээллийг харуулдаг.
-               Хүлээн авсан хүсэлтүүд нь хичээл орох төрлөөс хамаарч хичээл заах анги болон meeting холбоос зэрэг хичээлд бүрэн хандах боломжийг нээж өгдөг.
-            </p>
-          </div>
-        </div>
+            {showImage && request.proof_image && (
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-label="Full grade proof"
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-5"
+                onClick={() => setShowImage(false)}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowImage(false)}
+                  aria-label="Close"
+                  className="absolute right-6 top-6 rounded-full bg-white p-3 text-slate-900"
+                >
+                  <X size={20} />
+                </button>
+
+                <img
+                  src={request.proof_image}
+                  alt="Full grade proof"
+                  onClick={(e) => e.stopPropagation()}
+                  className="max-h-[85vh] max-w-full rounded-xl object-contain"
+                />
+              </div>
+            )}
+          </>
+        )}
       </div>
-
-      {showImage && (
-        <div
-          onClick={() => setShowImage(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
-        >
-          <div className="relative max-h-[95vh] max-w-[95vw]">
-            <button
-              onClick={() => setShowImage(false)}
-              className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-2 text-sm font-bold text-slate-900 shadow hover:bg-white"
-            >
-              ✕
-            </button>
-
-            <img
-              src={request.proof_image}
-              alt="Full grade proof"
-              className="max-h-[90vh] max-w-[90vw] rounded-3xl object-contain shadow-2xl"
-            />
-          </div>
-        </div>
-      )}
     </PageContainer>
   );
 }
-
-export default RequestDetail;

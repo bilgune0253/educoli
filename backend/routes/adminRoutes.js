@@ -12,4 +12,25 @@ router.delete("/users/:id", auth, role("admin"), adminController.deleteUser);
 router.delete("/courses/:id", auth, role("admin"), adminController.deleteCourse);
 router.put("/users/:id/role", auth, role("admin"), adminController.updateUserRole);
 
+router.get(
+  "/learning-requests",
+  auth,
+  role("admin"),
+  adminController.getAllLearningRequests
+);
+
+router.patch(
+  "/learning-requests/:id/close",
+  auth,
+  role("admin"),
+  adminController.closeLearningRequest
+);
+
+router.delete(
+  "/learning-requests/:id",
+  auth,
+  role("admin"),
+  adminController.deleteLearningRequest
+);
+
 module.exports = router;

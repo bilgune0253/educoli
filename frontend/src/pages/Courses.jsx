@@ -1,23 +1,25 @@
+
 import { useEffect, useMemo, useState } from "react";
+import { Search, BookOpen, SlidersHorizontal } from "lucide-react";
 import api from "../services/api";
-import { Link } from "react-router-dom";
 import PageContainer from "../components/PageContainer";
-import VerifiedBadge from "../components/VerifiedBadge";
+import CourseCard from "../components/CourseCard";
 
-function Courses() {
+export default function Courses() {
   const [courses, setCourses] = useState([]);
-  const [message, setMessage] = useState("");
   const [search, setSearch] = useState("");
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [type, setType] = useState("All");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const fetchCourses = async () => {
-    try {
-      const res = await api.get("/courses");
-      setCourses(res.data);
-    } catch (err) {
-      setMessage("Failed to load courses");
-    }
-  };
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  useEffect(() => {
+    api.get("/courses")
+      .then((res) => setCourses(res.data))
+      .catch(() => setMessage("Failed to load courses"))
+      .finally(() => setLoading(false));
+  }, []);
 
   const requestCourse = async (course_id) => {
     try {
@@ -28,167 +30,110 @@ function Courses() {
     }
   };
 
-  useEffect(() => {
-    fetchCourses();
-  }, []);
+  const types = useMemo(() => [
+    "All",
+    ...new Set(courses.map((c) => c.type).filter(Boolean))
+  ], [courses]);
 
-  const filteredCourses = useMemo(() => {
-    return courses.filter((course) => {
-      const text = `
-        ${course.title}
-        ${course.description}
-        ${course.tutor_name}
-        ${course.tutor_student_code || ""}
-        ${course.type}
-        ${course.grade}
-        ${course.schedule}
-      `.toLowerCase();
+  const filtered = useMemo(() => courses.filter((c) => {
+    const text = [
+      c.title, c.description, c.tutor_name,
+      c.tutor_student_code, c.type, c.grade, c.schedule
+    ].join(" ").toLowerCase();
 
-      return text.includes(search.toLowerCase());
-    });
-  }, [courses, search]);
+    return text.includes(search.toLowerCase()) &&
+      (type === "All" || c.type === type);
+  }), [courses, search, type]);
 
   return (
-    <PageContainer className="py-10">
-      <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="mb-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">
-            Course marketplace
-          </p>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            Discover Courses
-          </h1>
-          <p className="mt-2 text-slate-500 dark:text-slate-400">
-            Explore student-led lessons and connect with tutors.
-          </p>
-        </div>
+    <PageContainer className="py-10 sm:py-14">
+      <div className="mb-10">
+        <span className="text-sm font-bold uppercase tracking-widest text-indigo-600">
+          Explore & Learn
+        </span>
+        <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+          Discover <span className="text-indigo-600">Courses.</span>
+        </h1>
+        <p className="mt-4 max-w-xl text-slate-500 dark:text-slate-400">
+          Discover student-led courses and learn from talented peers.
+        </p>
+      </div>
 
-        <div className="w-full max-w-md">
+      <div className="ui-card mb-8 p-4 sm:p-5">
+        <div className="relative">
+          <Search
+            size={19}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+          />
           <input
-            type="text"
-            placeholder="Search by title, tutor, code, type, grade..."
+            type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-slate-400"
+            placeholder="Search courses, tutors, topics..."
+            aria-label="Search courses"
+            className="ui-input pl-12"
           />
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <SlidersHorizontal size={17} className="mr-1 text-slate-400" />
+          {types.map((item) => (
+            <button
+              key={item}
+              onClick={() => setType(item)}
+              className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+                type === item
+                  ? "bg-indigo-600 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-indigo-50 dark:bg-slate-800 dark:text-slate-300"
+              }`}
+            >
+              {item}
+            </button>
+          ))}
         </div>
       </div>
 
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-lg font-bold">
+          Available Courses
+        </h2>
+        <span className="text-sm text-slate-500">
+          {filtered.length} results
+        </span>
+      </div>
+
       {message && (
-        <p className="mb-6 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-600 dark:bg-rose-500/10 dark:text-rose-300">
+        <p role="alert" className="mb-6 rounded-xl bg-rose-50 p-4 text-rose-600">
           {message}
         </p>
       )}
 
-      {filteredCourses.length === 0 ? (
-        <div className="rounded-[32px] border border-dashed border-slate-300 bg-white p-12 text-center dark:border-slate-700 dark:bg-slate-900">
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-            No courses found
-          </h3>
-          <p className="mt-3 text-slate-500 dark:text-slate-400">
-            Try another search keyword or create a new course.
-          </p>
+      {loading ? (
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="ui-card h-80 animate-pulse bg-slate-100 dark:bg-slate-800" />
+          ))}
+        </div>
+      ) : filtered.length ? (
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((course) => (
+            <CourseCard
+              key={course.id}
+              course={course}
+              canRequest={user?.role === "student"}
+              onRequest={requestCourse}
+            />
+          ))}
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredCourses.map((course) => (
-            <div
-              key={course.id}
-              className="group rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
-            >
-              <div className="mb-5 flex items-center justify-between">
-                <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">
-                  {course.type}
-                </span>
-
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                  ₮ {course.price}
-                </span>
-              </div>
-
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-                {course.title}
-              </h3>
-
-              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                {course.description}
-              </p>
-
-              <div className="mt-5 space-y-2 rounded-2xl bg-slate-50 px-4 py-4 dark:bg-slate-950">
-                <div>
-                  <p className="text-sm text-slate-700 dark:text-slate-300">
-                    <span className="font-semibold">Tutor:</span>{" "}
-                    <Link
-                      to={`/tutors/${course.tutor_id}`}
-                      className="text-indigo-600 hover:underline dark:text-indigo-400"
-                    >
-                      {course.tutor_name}
-                    </Link>
-                    {course.tutor_is_verified && <VerifiedBadge className="ml-1" />}
-                  </p>
-
-                  {course.tutor_student_code && (
-                    <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-                      {course.tutor_student_code}
-                    </p>
-                  )}
-                </div>
-
-                <p className="text-sm text-slate-700 dark:text-slate-300">
-                  <span className="font-semibold">Date & time:</span>{" "}
-                  {course.schedule
-                    ? new Date(course.schedule).toLocaleString()
-                    : "Not set"}
-                </p>
-
-                <p className="text-sm text-slate-700 dark:text-slate-300">
-                  <span className="font-semibold">Grade:</span> {course.grade}
-                </p>
-              </div>
-
-              {course.proof_image && (
-                <div className="mt-4">
-                  <p className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    Grade proof
-                  </p>
-                  <img
-                    src={course.proof_image}
-                    alt="Grade proof"
-                    className="h-48 w-full rounded-2xl border border-slate-200 object-cover dark:border-slate-800"
-                  />
-                </div>
-              )}
-
-              <div className="mt-6 flex flex-wrap gap-3">
-                {user?.role === "student" && (
-                  <button
-                    onClick={() => requestCourse(course.id)}
-                    className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-                  >
-                    Send Request
-                  </button>
-                )}
-
-                <Link
-                  to={`/reviews/${course.tutor_id}`}
-                  className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  View Reviews
-                </Link>
-
-                <Link
-                  to={`/courses/${course.id}`}
-                  className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  View Details
-                </Link>
-              </div>
-            </div>
-          ))}
+        <div className="ui-card py-20 text-center">
+          <BookOpen size={40} className="mx-auto text-indigo-400" />
+          <h3 className="mt-4 text-xl font-bold">No courses found</h3>
+          <p className="mt-2 text-sm text-slate-500">
+            Try another search or category.
+          </p>
         </div>
       )}
     </PageContainer>
   );
 }
-
-export default Courses;

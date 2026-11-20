@@ -1,39 +1,31 @@
+
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { MessageSquare, Star } from "lucide-react";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
 import VerifiedBadge from "../components/VerifiedBadge";
 
-function Reviews() {
+export default function Reviews() {
   const { tutorId } = useParams();
   const [reviews, setReviews] = useState([]);
   const [form, setForm] = useState({ rating: 5, comment: "" });
   const [message, setMessage] = useState("");
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const fetchReviews = async () => {
     try {
-      const res = await api.get(`/reviews/${tutorId}`);
-      setReviews(res.data);
+      const { data } = await api.get(`/reviews/${tutorId}`);
+      setReviews(data);
     } catch (err) {
       setMessage(err.response?.data?.error || "Failed to load reviews");
-    }
-  };
-
-  const submitReview = async (e) => {
-    e.preventDefault();
-    setMessage("");
-
-    try {
-      await api.post("/reviews", {
-        tutor_id: Number(tutorId),
-        rating: Number(form.rating),
-        comment: form.comment,
-      });
-      setForm({ rating: 5, comment: "" });
-      fetchReviews();
-    } catch (err) {
-      setMessage(err.response?.data?.error || "Review failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,38 +33,84 @@ function Reviews() {
     fetchReviews();
   }, [tutorId]);
 
-  const avg =
-    reviews.length > 0
-      ? (reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length).toFixed(1)
-      : "0.0";
+  const submitReview = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setSaving(true);
+
+    try {
+      await api.post("/reviews", {
+        tutor_id: Number(tutorId),
+        rating: Number(form.rating),
+        comment: form.comment
+      });
+      setForm({ rating: 5, comment: "" });
+      await fetchReviews();
+    } catch (err) {
+      setMessage(err.response?.data?.error || "Review failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const avg = reviews.length
+    ? (
+        reviews.reduce((sum, r) => sum + Number(r.rating), 0) /
+        reviews.length
+      ).toFixed(1)
+    : "0.0";
 
   return (
-    <PageContainer className="py-10">
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">Tutor profile feedback</p>
-        <h1 className="text-4xl font-black text-slate-900 dark:text-white">Reviews</h1>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
-          Read student feedback and ratings for this tutor.
-        </p>
-      </div>
+    <PageContainer className="py-10 sm:py-14">
+      <PageHeader
+        eyebrow="Tutor Feedback"
+        title="Student Reviews"
+        description="Багшийн үнэлгээ, суралцагчдын сэтгэгдлийг уншаарай."
+      />
 
-      <div className="mb-8 rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-lg font-semibold text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
-        ⭐ Average Rating: {avg}
+      <div className="mb-8 grid gap-4 sm:grid-cols-2">
+        <Card>
+          <div className="flex items-center gap-4">
+            <div className="rounded-xl bg-amber-50 p-3 text-amber-600 dark:bg-amber-500/10">
+              <Star size={25} fill="currentColor" />
+            </div>
+            <div>
+              <p className="text-3xl font-extrabold">{avg}</p>
+              <p className="text-sm text-slate-500">Average Rating</p>
+            </div>
+          </div>
+        </Card>
+        <Card>
+          <div className="flex items-center gap-4">
+            <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600 dark:bg-indigo-500/10">
+              <MessageSquare size={25} />
+            </div>
+            <div>
+              <p className="text-3xl font-extrabold">{reviews.length}</p>
+              <p className="text-sm text-slate-500">Total Reviews</p>
+            </div>
+          </div>
+        </Card>
       </div>
 
       {user?.role === "student" && (
-        <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">Write a review</h2>
+        <Card className="mb-8">
+          <h2 className="mb-2 text-xl font-bold">Write a Review</h2>
+          <p className="mb-6 text-sm text-slate-500">
+            Багштай суралцсан туршлагаа хуваалцаарай.
+          </p>
 
-          <form onSubmit={submitReview} className="space-y-4">
+          <form onSubmit={submitReview} className="space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <label className="mb-2 block text-sm font-semibold">
                 Rating
               </label>
               <select
                 value={form.rating}
-                onChange={(e) => setForm({ ...form, rating: e.target.value })}
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
+                onChange={(e) =>
+                  setForm({ ...form, rating: e.target.value })
+                }
+                className="ui-input w-full"
               >
                 <option value="5">5 - Excellent</option>
                 <option value="4">4 - Very good</option>
@@ -83,73 +121,76 @@ function Reviews() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <label className="mb-2 block text-sm font-semibold">
                 Comment
               </label>
               <textarea
-                placeholder="Share your learning experience"
+                rows={5}
                 value={form.comment}
-                onChange={(e) => setForm({ ...form, comment: e.target.value })}
-                rows="4"
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-400"
+                onChange={(e) =>
+                  setForm({ ...form, comment: e.target.value })
+                }
+                placeholder="Share your learning experience..."
+                className="ui-input w-full"
               />
             </div>
 
-            <button
-              type="submit"
-              className="rounded-2xl bg-slate-900 px-5 py-3 font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-            >
-              Submit Review
-            </button>
+            <Button type="submit" disabled={saving}>
+              {saving ? "Submitting..." : "Submit Review"}
+            </Button>
           </form>
-        </div>
+        </Card>
       )}
 
       {message && (
-        <p className="mb-6 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-600 dark:bg-rose-500/10 dark:text-rose-300">
+        <p role="alert" className="mb-6 rounded-xl bg-rose-50 p-4 text-sm text-rose-600">
           {message}
         </p>
       )}
 
-      {reviews.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-          No reviews yet.
-        </div>
-      ) : (
-        <div className="grid gap-5">
-          {reviews.map((review) => (
-            <div
-              key={review.id}
-              className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-            >
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <p className="text-lg font-bold text-slate-900 dark:text-white">
-                    {review.student_name}
-                    {review.student_is_verified && <VerifiedBadge className="ml-1" />}
-                  </p>
+      <h2 className="mb-5 text-xl font-bold">All Reviews</h2>
 
+      {loading ? (
+        <div className="ui-card h-40 animate-pulse" />
+      ) : reviews.length === 0 ? (
+        <Card className="py-14 text-center">
+          <MessageSquare
+            size={36}
+            className="mx-auto text-indigo-400"
+          />
+          <p className="mt-4 text-slate-500">No reviews yet.</p>
+        </Card>
+      ) : (
+        <div className="grid gap-5 md:grid-cols-2">
+          {reviews.map((review) => (
+            <Card key={review.id}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="flex flex-wrap items-center gap-1">
+                    <h3 className="font-bold">
+                      {review.student_name}
+                    </h3>
+                    {review.student_is_verified && <VerifiedBadge />}
+                  </div>
                   {review.student_code && (
-                    <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                    <p className="mt-1 text-xs text-slate-500">
                       {review.student_code}
                     </p>
                   )}
                 </div>
-
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+                <span className="flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1.5 text-sm font-bold text-amber-700 dark:bg-amber-500/10">
+                  <Star size={15} fill="currentColor" />
                   {review.rating}/5
                 </span>
               </div>
 
-              <p className="leading-7 text-slate-600 dark:text-slate-300">
+              <p className="mt-5 whitespace-pre-wrap leading-7 text-slate-600 dark:text-slate-300">
                 {review.comment}
               </p>
-            </div>
+            </Card>
           ))}
         </div>
       )}
     </PageContainer>
   );
 }
-
-export default Reviews;

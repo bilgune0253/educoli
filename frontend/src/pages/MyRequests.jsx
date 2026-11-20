@@ -1,204 +1,199 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Plus, ClipboardList, MessageCircle } from "lucide-react";
 import api from "../services/api";
 import PageContainer from "../components/PageContainer";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
+import StatusBadge from "../components/ui/StatusBadge";
+import RequestCard from "../components/ui/RequestCard";
 import StatCard from "../components/StatCard";
-import VerifiedBadge from "../components/VerifiedBadge";
 
-function MyRequests() {
+export default function MyRequests() {
   const [requests, setRequests] = useState([]);
-  const [message, setMessage] = useState("");
+  const [learningRequests, setLearningRequests] = useState([]);
+  const [error, setError] = useState("");
+  const [learningError, setLearningError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [payingId, setPayingId] = useState(null);
 
   useEffect(() => {
-    const fetchMyRequests = async () => {
-      try {
-        const res = await api.get("/requests/my");
-        setRequests(res.data);
-      } catch (err) {
-        setMessage(err.response?.data?.error || "Failed to load requests");
+    const load = async () => {
+      const [courses, learning] = await Promise.allSettled([
+        api.get("/requests/my"),
+        api.get("/learning-requests/my")
+      ]);
+
+      if (courses.status === "fulfilled") {
+        setRequests(courses.value.data);
+      } else {
+        setError(
+          courses.reason.response?.data?.error ||
+          "Failed to load requests"
+        );
       }
+
+      if (learning.status === "fulfilled") {
+        setLearningRequests(learning.value.data);
+      } else {
+        setLearningError(
+          learning.reason.response?.data?.error ||
+          "Learning Requests ачаалж чадсангүй"
+        );
+      }
+
+      setLoading(false);
     };
 
-    fetchMyRequests();
+    load();
   }, []);
 
-  const accepted = requests.filter((r) => r.status === "accepted").length;
-  const pending = requests.filter((r) => r.status === "pending").length;
-  const rejected = requests.filter((r) => r.status === "rejected").length;
-
-  const getStatusClass = (status) => {
-    if (status === "accepted") {
-      return "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20";
+  const pay = async (requestId) => {
+    setPayingId(requestId);
+    try {
+      await api.post("/payments", { request_id: requestId });
+      alert("Payment successful!");
+      window.location.reload();
+    } catch (err) {
+      alert(err.response?.data?.error || "Payment failed");
+    } finally {
+      setPayingId(null);
     }
-    if (status === "rejected") {
-      return "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20";
-    }
-    return "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20";
   };
 
-  return (
-    <PageContainer className="py-10">
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">
-          Student dashboard
-        </p>
-        <h1 className="text-4xl font-black text-slate-900 dark:text-white">
-          My Requests
-        </h1>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
-          Track all course requests you have sent.
-        </p>
-      </div>
+  const count = (status) =>
+    requests.filter((r) => r.status === status).length;
 
-      {message && (
-        <p className="mb-6 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-600 dark:bg-rose-500/10 dark:text-rose-300">
-          {message}
+  return (
+    <PageContainer className="py-10 sm:py-14">
+      <PageHeader
+        eyebrow="Student Workspace"
+        title="My Requests"
+        description="Илгээсэн хичээлийн хүсэлтүүд болон өөрийн нийтэлсэн суралцах хүсэлтүүдийг удирдаарай."
+      />
+
+      {error && (
+        <p role="alert" className="mb-5 rounded-xl bg-rose-50 p-4 text-rose-600">
+          {error}
         </p>
       )}
 
-      <div className="mb-10 grid gap-5 md:grid-cols-4">
-        <StatCard label="Total" value={requests.length} color="text-slate-900 dark:text-white" />
-        <StatCard label="Accepted" value={accepted} color="text-emerald-600" />
-        <StatCard label="Pending" value={pending} color="text-amber-600" />
-        <StatCard label="Rejected" value={rejected} color="text-rose-600" />
+      <div className="mb-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Total" value={requests.length} />
+        <StatCard label="Pending" value={count("pending")} color="text-amber-600" />
+        <StatCard label="Accepted" value={count("accepted")} color="text-emerald-600" />
+        <StatCard label="Rejected" value={count("rejected")} color="text-rose-600" />
       </div>
 
-      {requests.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-          No requests found yet.
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-xl font-bold">Course Requests</h2>
+        <Link to="/courses" className="text-sm font-semibold text-indigo-600">
+          Browse Courses
+        </Link>
+      </div>
+
+      {loading ? (
+        <div className="grid gap-5 md:grid-cols-2">
+          {[1, 2].map((n) => (
+            <div key={n} className="ui-card h-72 animate-pulse" />
+          ))}
+        </div>
+      ) : requests.length ? (
+        <div className="grid items-stretch gap-5 md:grid-cols-2">
+          {requests.map((r) => (
+            <RequestCard
+              key={r.id}
+              request={r}
+              onPay={pay}
+              paying={payingId !== null}
+            />
+          ))}
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2">
-          {requests.map((r) => (
-            <div
-              key={r.id}
-              className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
+        <Card className="py-14 text-center">
+          <ClipboardList size={36} className="mx-auto text-indigo-400" />
+          <h3 className="mt-4 font-bold">No course requests yet</h3>
+          <p className="mt-2 text-sm text-slate-500">
+            Хичээл сонгон хүсэлт илгээснээр энд харагдана.
+          </p>
+        </Card>
+      )}
+
+      <section className="mt-14">
+        <PageHeader
+          eyebrow="Learning Marketplace"
+          title="My Learning Requests"
+          description="Өөрийн нийтэлсэн суралцах хүсэлтүүд"
+          action={
+            <Link
+              to="/learning-requests/new"
+              className="ui-button ui-button-primary"
             >
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                    {r.title}
-                  </h3>
+              <Plus size={17} /> Шинэ хүсэлт
+            </Link>
+          }
+        />
 
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Оюутан багш:{" "}
-                    <span className="font-medium text-slate-700 dark:text-slate-200">
-                      {r.tutor_name}
-                    </span>
-                    {r.tutor_is_verified && <VerifiedBadge className="ml-1" />}
-                  </p>
+        {learningError && (
+          <p role="alert" className="mb-5 text-rose-600">
+            {learningError}
+          </p>
+        )}
 
-                  {r.is_paid && (
-                    <span className="inline-block mt-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
-                      ✔ Paid
-                    </span>
+        {learningRequests.length ? (
+          <div className="grid gap-5 md:grid-cols-2">
+            {learningRequests.map((item) => (
+              <Card key={item.id} hover>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-bold uppercase tracking-wide text-indigo-600">
+                    {item.subject}
+                  </span>
+                  <StatusBadge status={item.status} />
+                </div>
+
+                <h3 className="mt-4 text-xl font-bold">
+                  {item.topic}
+                </h3>
+                <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-500">
+                  {item.description}
+                </p>
+
+                <div className="mt-5 space-y-2 text-sm text-slate-500">
+                  <p>Ирсэн санал: {item.offer_count}</p>
+                  {item.selected_tutor && (
+                    <p>Сонгосон багш: <strong>{item.selected_tutor}</strong></p>
                   )}
                 </div>
 
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
-                    r.status
-                  )}`}
-                >
-                  {r.status}
-                </span>
-              </div>
-
-              <div className="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700 dark:bg-slate-950 dark:text-slate-300">
-                <p>
-                  <span className="font-semibold">Description:</span> {r.description}
-                </p>
-                <p>
-                  <span className="font-semibold">Type:</span> {r.type}
-                </p>
-                <p>
-                  <span className="font-semibold">Date & time:</span>{" "}
-                  {r.schedule ? new Date(r.schedule).toLocaleString() : "Not set"}
-                </p>
-                <p>
-                  <span className="font-semibold">Grade:</span> {r.grade}
-                </p>
-
-                {r.proof_image && (
-                  <div>
-                    <p className="mb-2 font-semibold">Grade proof:</p>
-                    <img
-                      src={r.proof_image}
-                      alt="Grade proof"
-                      className="max-h-64 w-full rounded-2xl border border-slate-200 object-cover dark:border-slate-700"
-                    />
-                  </div>
-                )}
-
-                {r.status === "accepted" && r.is_paid && r.meeting_link && (
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-                    <p className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
-                      {r.type === "online" ? "Meeting link:" : "Хичээлийн байр:"}
-                    </p>
-
-                    {r.type === "online" ? (
-                      <a
-                        href={r.meeting_link}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-indigo-600 underline dark:text-indigo-400"
-                      >
-                        {r.meeting_link}
-                      </a>
-                    ) : (
-                      <p className="text-slate-600 dark:text-slate-300">
-                        📍 {r.meeting_link}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link
-                  to={`/my-requests/${r.id}`}
-                  className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  View Details
-                </Link>
-
-                {r.status === "accepted" && !r.is_paid && (
-                  <button
-                    onClick={async () => {
-                      try {
-                        await api.post("/payments", {
-                          request_id: r.id,
-                        });
-
-                        alert("Payment successful!");
-                        window.location.reload();
-                      } catch (err) {
-                        alert(err.response?.data?.error || "Payment failed");
-                      }
-                    }}
-                    className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                <div className="mt-6 flex flex-wrap gap-2">
+                  <Link
+                    to={`/learning-requests/${item.id}`}
+                    className="ui-button ui-button-outline"
                   >
-                    Pay Now 💳
-                  </button>
-                )}
+                    View Details
+                  </Link>
 
-                {r.status === "accepted" && r.is_paid && r.meeting_link && r.type === "online" && (
-                  <a
-                    href={r.meeting_link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
-                  >
-                    Join Lesson
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                  {item.status === "matched" && item.conversation_id && (
+                    <Link
+                      to={`/messages?chat=${item.conversation_id}`}
+                      className="ui-button ui-button-primary"
+                    >
+                      <MessageCircle size={16} /> Chat
+                    </Link>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : !loading && !learningError && (
+          <Card className="py-12 text-center">
+            <p className="text-sm text-slate-500">
+              Одоогоор Learning Request байхгүй.
+            </p>
+          </Card>
+        )}
+      </section>
     </PageContainer>
   );
 }
-
-export default MyRequests;

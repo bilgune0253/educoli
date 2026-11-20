@@ -18,6 +18,10 @@ import TutorProfile from "./pages/TutorProfile";
 import Tutors from "./pages/Tutors";
 import VerifyRequest from "./pages/VerifyRequest";
 import VerifyEmail from "./pages/VerifyEmail";
+import LearningRequests from "./pages/LearningRequests";
+import CreateLearningRequest from "./pages/CreateLearningRequest";
+import LearningRequestDetail from "./pages/LearningRequestDetail";
+import Messages from "./pages/Messages";
 
 function App() {
   return (
@@ -90,6 +94,32 @@ function App() {
 
           <Route path="/verify-request" element={<VerifyRequest />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route
+            path="/learning-requests"
+            element={<LearningRequests />}
+          />
+
+          <Route
+            path="/learning-requests/new"
+            element={
+              <ProtectedRoute>
+                <CreateLearningRequest />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/learning-requests/:id"
+            element={<LearningRequestDetail />}
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
     </div>
