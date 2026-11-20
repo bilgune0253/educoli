@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import AuthLayout from "../components/ui/AuthLayout";
 import Button from "../components/ui/Button";
-import { Input, Select } from "../components/ui/Form";
+import { Input, Select } from "../components/ui/form";
 
 export default function Register() {
   const navigate = useNavigate();

@@ -7,7 +7,7 @@ import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/ui/PageHeader";
 import FormSection from "../components/ui/FormSection";
 import Button from "../components/ui/Button";
-import { Input, Select, Textarea } from "../components/ui/Form";
+import { Input, Select, Textarea } from "../components/ui/form";
 
 export default function CreateCourse() {
   const navigate = useNavigate();

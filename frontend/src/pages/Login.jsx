@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import api from "../services/api";
 import AuthLayout from "../components/ui/AuthLayout";
 import Button from "../components/ui/Button";
-import { Input } from "../components/ui/Form";
+import { Input } from "../components/ui/form";
 
 export default function Login() {
   const navigate = useNavigate();
